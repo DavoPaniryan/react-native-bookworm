@@ -9,3 +9,4 @@ const job = new cron.CronJob('*/14****', function () {
         }
     });
 });
+export default job;
