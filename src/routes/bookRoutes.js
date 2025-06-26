@@ -35,26 +35,29 @@ router.post('/', protectRoute, async (req, res) => {
     }
 });
 
-router.get('/', protectRoute, (req, res) => {
+router.get('/', protectRoute, async (req, res) => {
     try {
-        const page = req.query.page || 1;
-        const limit = req.query.limit || 5;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
         const skip = (page - 1) * limit;
-        const books = Book.find()
+
+        const books = await Book.find()
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
             .populate('user', 'username profileImage');
 
-        const totalBooks = Book.countDocuments();
-        res.send({
+        const totalBooks = await Book.countDocuments();
+
+        res.json({
             books,
             currentPage: page,
             totalBooks,
             totalPages: Math.ceil(totalBooks / limit),
         });
     } catch (error) {
-        res.status(500).json('Internal server error');
+        console.error('Error fetching books:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
